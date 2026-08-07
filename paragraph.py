@@ -1,9 +1,9 @@
-para = input("Enter a paragraph: ")
+pg = input("Enter a paragraph: ")
 
 punctuation = ".,!?;:'\"()-[]{}<>/\\@#$%^&*_+=|`~"
 
 clean_text = ""
-for ch in para:
+for ch in pg:
     if ch not in punctuation:
         clean_text += ch
     else:
