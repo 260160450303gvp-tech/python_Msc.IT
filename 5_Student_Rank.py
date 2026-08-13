@@ -4,7 +4,7 @@ subjects = ["Python", "linux", "Data structure", "java", "Computer Network"]
 
 n = int(input("Enter number of students (minimum 5): "))
 
-while n < 3:
+while n < 5:
     print("Please enter at least 5 students.")
     n = int(input("Enter number of students (minimum 5): "))
 
