@@ -2,13 +2,18 @@ students = {}
 
 subjects = ["Python", "linux", "Data structure", "java", "Computer Network"]
 
-n = int(input("Enter number of students: "))
+n = int(input("Enter number of students (minimum 5): "))
+
+while n < 3:
+    print("Please enter at least 5 students.")
+    n = int(input("Enter number of students (minimum 5): "))
 
 for i in range(n):
     roll = input("Roll No: ")
     name = input("Name: ")
 
     marks = []
+
     for sub in subjects:
         marks.append(int(input("Enter " + sub + " mark: ")))
 
@@ -17,11 +22,11 @@ for i in range(n):
 
     if per >= 90:
         grade = "A"
-    elif per >= 75:
+    elif per >= 80:
         grade = "B"
-    elif per >= 50:
+    elif per >= 70:
         grade = "C"
-    elif per >= 35:
+    elif per >= 50:
         grade = "D"
     else:
         grade = "F"
@@ -33,11 +38,14 @@ data = sorted(students.items(), key=lambda x: x[1][1], reverse=True)
 rank = 0
 last = -1
 
-print("\nRank\t Roll\t Name\t Total\t Percentage\t Grade\t")
+print("\nRoll\tName\tTotal\tPercentage\tGrade\trank")
 
 for i, (roll, s) in enumerate(data):
+
     if s[1] != last:
         rank = i + 1
 
-    print(rank,"\t", roll,"\t", s[0],"\t", s[1],"\t", s[2],"\t","\t", s[3])
+    print(roll, "\t", s[0], "\t", s[1], "\t", s[2], "\t\t", s[3],"\t",rank)
+
     last = s[1]
+    
