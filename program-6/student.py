@@ -5,7 +5,7 @@ def get_students():
 
     n = int(input("Enter Number of Students (Minimum 5): "))
 
-    if n < 2:
+    if n < 5:
         print("Please enter at least 5 students.")
         return []
 
