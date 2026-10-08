@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My To-Do App</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        button,
+        .btn {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 7px;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .add {
+            background: #4f46e5;
+            width: 100%;
+        }
+
+        .add:hover {
+            background: #3730a3;
+        }
+
+        .task {
+            border: 1px solid #ddd;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .task h3 {
+            margin-bottom: 8px;
+            color: #222;
+        }
+
+        .task p {
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .priority {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .low {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .complete {
+            background: #16a34a;
+        }
+
+        .complete:hover {
+            background: #15803d;
+        }
+
+        .pending {
+            background: #f59e0b;
+        }
+
+        .pending:hover {
+            background: #d97706;
+        }
+
+        .delete {
+            background: #dc2626;
+        }
+
+        .delete:hover {
+            background: #b91c1c;
+        }
+
+        .edit {
+            background: #4f46e5;
+        }
+
+        .edit:hover {
+            background: #3730a3;
+        }
+
+        .update-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .empty {
+            color: #777;
+            padding: 10px;
+        }
+
+        .date {
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 15px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions .btn,
+            .actions button {
+                width: 100%;
+                text-align: center;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>📝 My To-Do List</h1>
+
+
+    <!-- =========================
+         ADD TASK
+    ========================== -->
+
+    <div class="box">
+
+        <h2>➕ Add New Task</h2>
+
+        <form action="/add" method="POST">
+
+            <input
+                type="text"
+                name="title"
+                placeholder="Task Title"
+                maxlength="150"
+                required
+            >
+
+            <textarea
+                name="description"
+                placeholder="Task Description"
+                maxlength="300"
+            ></textarea>
+
+            <select name="priority" required>
+
+                <option value="">
+                    Select Priority
+                </option>
+
+                <option value="High">
+                    High
+                </option>
+
+                <option value="Medium">
+                    Medium
+                </option>
+
+                <option value="Low">
+                    Low
+                </option>
+
+            </select>
+
+            <input
+                type="date"
+                name="due_date"
+                required
+            >
+
+            <button
+                class="add"
+                type="submit"
+            >
+                ➕ Add Task
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================
+         PENDING TASKS
+    ========================== -->
+
+    <div class="box">
+
+        <h2>⏳ Pending Tasks</h2>
+
+        {% if pending %}
+
+            {% for task in pending %}
+
+            <div class="task">
+
+                <h3>
+                    {{ task.title }}
+                </h3>
+
+                <p>
+                    {{ task.description }}
+                </p>
+
+                <span class="priority {{ task.priority|lower }}">
+                    {{ task.priority }}
+                </span>
+
+                <p class="date">
+                    📅 Due Date:
+                    {{ task.due_date }}
+                </p>
+
+
+                <!-- Buttons -->
+
+                <div class="actions">
+
+                    <a
+                        href="/toggle/{{ task.id }}"
+                        class="btn complete"
+                    >
+                        ✓ Complete
+                    </a>
+
+
+                    <!-- FIXED UPDATE BUTTON -->
+
+                    <button
+                        type="button"
+                        class="edit"
+                        data-id="{{ task.id }}"
+                        onclick="showUpdate(this.dataset.id)"
+                    >
+                        ✏ Update
+                    </button>
+
+
+                    <!-- Delete -->
+
+                    <form
+                        action="/delete/{{ task.id }}"
+                        method="POST"
+                        style="display:inline;"
+                    >
+
+                        <button
+                            type="submit"
+                            class="delete"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- =========================
+                     UPDATE FORM
+                ========================== -->
+
+                <div
+                    class="update-form"
+                    id="update-{{ task.id }}"
+                >
+
+                    <form
+                        action="/update/{{ task.id }}"
+                        method="POST"
+                    >
+
+                        <input
+                            type="text"
+                            name="title"
+                            value="{{ task.title }}"
+                            maxlength="150"
+                            required
+                        >
+
+                        <textarea
+                            name="description"
+                            maxlength="300"
+                        >{{ task.description }}</textarea>
+
+
+                        <select name="priority" required>
+
+                            <option
+                                value="High"
+                                {% if task.priority == "High" %}
+                                    selected
+                                {% endif %}
+                            >
+                                High
+                            </option>
+
+                            <option
+                                value="Medium"
+                                {% if task.priority == "Medium" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Medium
+                            </option>
+
+                            <option
+                                value="Low"
+                                {% if task.priority == "Low" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Low
+                            </option>
+
+                        </select>
+
+
+                        <input
+                            type="date"
+                            name="due_date"
+                            value="{{ task.due_date }}"
+                            required
+                        >
+
+
+                        <button
+                            type="submit"
+                            class="edit"
+                        >
+                            💾 Save Update
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty">
+                No pending tasks.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =========================
+         COMPLETED TASKS
+    ========================== -->
+
+    <div class="box">
+
+        <h2>✅ Completed Tasks</h2>
+
+        {% if completed %}
+
+            {% for task in completed %}
+
+            <div class="task">
+
+                <h3>
+                    <del>
+                        {{ task.title }}
+                    </del>
+                </h3>
+
+                <p>
+                    {{ task.description }}
+                </p>
+
+                <span class="priority {{ task.priority|lower }}">
+                    {{ task.priority }}
+                </span>
+
+                <p class="date">
+                    📅 Due Date:
+                    {{ task.due_date }}
+                </p>
+
+
+                <!-- Buttons -->
+
+                <div class="actions">
+
+                    <a
+                        href="/toggle/{{ task.id }}"
+                        class="btn pending"
+                    >
+                        ↩ Make Pending
+                    </a>
+
+
+                    <!-- FIXED UPDATE BUTTON -->
+
+                    <button
+                        type="button"
+                        class="edit"
+                        data-id="{{ task.id }}"
+                        onclick="showUpdate(this.dataset.id)"
+                    >
+                        ✏ Update
+                    </button>
+
+
+                    <!-- Delete -->
+
+                    <form
+                        action="/delete/{{ task.id }}"
+                        method="POST"
+                        style="display:inline;"
+                    >
+
+                        <button
+                            type="submit"
+                            class="delete"
+                        >
+                            🗑 Delete
+                        </button>
+
+                    </form>
+
+                </div>
+
+
+                <!-- =========================
+                     UPDATE FORM
+                ========================== -->
+
+                <div
+                    class="update-form"
+                    id="update-{{ task.id }}"
+                >
+
+                    <form
+                        action="/update/{{ task.id }}"
+                        method="POST"
+                    >
+
+                        <input
+                            type="text"
+                            name="title"
+                            value="{{ task.title }}"
+                            maxlength="150"
+                            required
+                        >
+
+                        <textarea
+                            name="description"
+                            maxlength="300"
+                        >{{ task.description }}</textarea>
+
+
+                        <select name="priority" required>
+
+                            <option
+                                value="High"
+                                {% if task.priority == "High" %}
+                                    selected
+                                {% endif %}
+                            >
+                                High
+                            </option>
+
+                            <option
+                                value="Medium"
+                                {% if task.priority == "Medium" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Medium
+                            </option>
+
+                            <option
+                                value="Low"
+                                {% if task.priority == "Low" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Low
+                            </option>
+
+                        </select>
+
+
+                        <input
+                            type="date"
+                            name="due_date"
+                            value="{{ task.due_date }}"
+                            required
+                        >
+
+
+                        <button
+                            type="submit"
+                            class="edit"
+                        >
+                            💾 Save Update
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty">
+                No completed tasks.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     JAVASCRIPT
+========================== -->
+
+<script>
+
+function showUpdate(id) {
+
+    var form = document.getElementById("update-" + id);
+
+    if (form.style.display === "block") {
+
+        form.style.display = "none";
+
+    } else {
+
+        form.style.display = "block";
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>
